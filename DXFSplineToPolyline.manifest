@@ -1,0 +1,12 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"de446b9e-9ce4-42a4-9086-283a6eb40a03",
+	"author":	"Xiaodong Liang, Autodesk",
+	"description":	{
+		"":	"A companion command of [Save As DXF] of sketch. Can convert spline to polyline"
+	},
+	"version":	"1.0.0",
+	"runOnStartup":	true,
+	"supportedOS":	"windows|mac"
+}
