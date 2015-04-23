@@ -6,4 +6,5 @@ usage:
 * run Fusion 360. Switch to [Model] environment 
 * the command [DXFSplineToPolyline] is available at [Create] panel
 * activate a sketch and run the command. Input the precision for spline and click [OK]
- 
+
+Written by Xiaodong Liang, Autodesk 
