@@ -76,10 +76,16 @@ def ReplaceDXF(spline_polyline_map,olddxf):
 
     #remove the rows that are marked
     updateStr[:] = (value for value in updateStr \
+<<<<<<< HEAD
                     if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n') 
                     
     return updateStr
  
+=======
+                    if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n')          
+    return updateStr
+    
+>>>>>>> origin/master
 #convert spline to polyline    
 def BSplineToLines(oSketch,
                    unitMgr,
