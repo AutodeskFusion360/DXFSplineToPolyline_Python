@@ -10,7 +10,6 @@ panelToUse = 'SketchPanel'
 # global set of event handlers to keep them referenced for the duration of the command
 handlers = []
 
-
 ####DXF export begin
 # string is a number
 def is_number(s):
@@ -76,16 +75,10 @@ def ReplaceDXF(spline_polyline_map,olddxf):
 
     #remove the rows that are marked
     updateStr[:] = (value for value in updateStr \
-<<<<<<< HEAD
                     if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n') 
                     
     return updateStr
  
-=======
-                    if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n')          
-    return updateStr
-    
->>>>>>> origin/master
 #convert spline to polyline    
 def BSplineToLines(oSketch,
                    unitMgr,
@@ -175,7 +168,7 @@ def DXFExportMain():
         #ask user to input precision        
         inputPre = '50'
         (ReturnValue, objIsCancelled) = ui.inputBox(
-            'Enter a precision for spline to polyline',                                
+            'Number of sections to split splines into',                                
             'Precision', 
             inputPre)
             
@@ -272,8 +265,9 @@ def destroyObject(uiObj, tobeDeleteObj):
 def run(context):
     ui = None
     try:
-        commandName = 'DXFSplineToPolyline'
-        commandDescription = 'A companion command of [Save As DXF] of sketch. Can convert spline to polyline'
+        commandName = 'Export to DXF (Splines as Polylines)'
+        commandDescription = 'Exports the active sketch to DXF and converts the ' \
+        'splines in the created file to polylines'
         commandResources = './resources/command'
 
         app = adsk.core.Application.get()
@@ -303,7 +297,6 @@ def run(context):
                 except:
                     if ui:
                         ui.messageBox('Panel command created failed:\n{}'.format(traceback.format_exc()))
-    
 
         commandDefinitions_ = ui.commandDefinitions 
 		
@@ -314,20 +307,20 @@ def run(context):
         workspaces_ = ui.workspaces
         modelingWorkspace_ = workspaces_.itemById(workspaceToUse)
         toolbarPanels_ = modelingWorkspace_.toolbarPanels
-        toolbarPanel_ = toolbarPanels_.itemById(panelToUse) # add the new command under the first panel
+        toolbarPanel_ = toolbarPanels_.itemById(panelToUse) 
         toolbarControlsPanel_ = toolbarPanel_.controls
         toolbarControlPanel_ = toolbarControlsPanel_.itemById(commandIdOnPanel)
         if not toolbarControlPanel_:
             commandDefinitionPanel_ = commandDefinitions_.itemById(commandIdOnPanel)
             if not commandDefinitionPanel_:
-                commandDefinitionPanel_ = commandDefinitions_.addButtonDefinition(commandIdOnPanel, commandName, commandDescription, commandResources)
+                commandDefinitionPanel_ = commandDefinitions_.addButtonDefinition(commandIdOnPanel, commandName, commandName, commandResources)
+                commandDefinitionPanel_.tooltipDescription = commandDescription
             onCommandCreated = CommandCreatedEventHandlerPanel()
             commandDefinitionPanel_.commandCreated.add(onCommandCreated)
             # keep the handler referenced beyond this function
             handlers.append(onCommandCreated)
             toolbarControlPanel_ = toolbarControlsPanel_.addCommand(commandDefinitionPanel_, commandIdOnPanel)
             toolbarControlPanel_.isVisible = True
-            #ui.messageBox('A demo command is successfully added to the create panel in modeling workspace')
 
     except:
         if ui:
