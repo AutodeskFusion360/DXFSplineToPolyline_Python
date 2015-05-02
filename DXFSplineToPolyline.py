@@ -1,9 +1,11 @@
 #Author-Xiaodong Liang, Autodesk
 #A companion command of [Save As DXF] of sketch. Can convert spline to polyline
 
-import adsk.core, adsk.fusion, traceback,os,re,math,string   
+import adsk.core, adsk.fusion, traceback, os #, re, math, string   
 
 commandIdOnPanel = 'id_DXFSplineToPolyline'
+workspaceToUse = 'FusionSolidEnvironment'
+panelToUse = 'SketchPanel'
 
 # global set of event handlers to keep them referenced for the duration of the command
 handlers = []
@@ -74,7 +76,9 @@ def ReplaceDXF(spline_polyline_map,olddxf):
 
     #remove the rows that are marked
     updateStr[:] = (value for value in updateStr \
-                    if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n')          
+                    if value != '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n') 
+                    
+    return updateStr
  
 #convert spline to polyline    
 def BSplineToLines(oSketch,
@@ -153,7 +157,7 @@ def DXFExportMain():
         activeObj = design.activeEditObject  
 
         if activeObj.objectType != "adsk::fusion::Sketch":
-            ui.messageBox('active object is NOT a sketch!', 'Not a Sketch')
+            ui.messageBox('Active object is NOT a sketch!', 'Not a Sketch')
             return        
         
         #default dxf saving 
@@ -164,9 +168,10 @@ def DXFExportMain():
      
         #ask user to input precision        
         inputPre = '50'
-        (ReturnValue,objIsCancelled) = ui.inputBox('Enter a precision for spline to polyline',                                
-                               'Precision', 
-                               inputPre)
+        (ReturnValue, objIsCancelled) = ui.inputBox(
+            'Enter a precision for spline to polyline',                                
+            'Precision', 
+            inputPre)
             
         #Exit the program if the dialog was cancelled.
         if objIsCancelled:
@@ -203,9 +208,9 @@ def DXFExportMain():
         #pop out file dialog to save the DXF    
         fileDialog = ui.createFileDialog()
         fileDialog.isMultiSelectEnabled = False
-        fileDialog.title = "Specify result filename"
+        fileDialog.title = "Export to DXF"
         fileDialog.filter = 'DXF files (*.dxf)'
-        fileDialog.filterIndex = 0
+        fileDialog.filterIndex = 0    
         dialogResult = fileDialog.showSave()
         if dialogResult == adsk.core.DialogResults.DialogOK:
             filename = fileDialog.filename
@@ -217,7 +222,7 @@ def DXFExportMain():
         output.writelines(updateStr)
         output.close()
         
-        ui.messageBox('File written to "' + filename + '"')
+        ui.messageBox('File exported as "' + filename + '"')
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -235,18 +240,18 @@ def commandDefinitionById(id):
     commandDefinition_ = commandDefinitions_.itemById(id)
     return commandDefinition_
 
-
-
 def commandControlByIdForPanel(id):
+    global workspaceToUse
+    global panelToUse
     app = adsk.core.Application.get()
     ui = app.userInterface
     if not id:
         ui.messageBox('commandControl id is not specified')
         return None
     workspaces_ = ui.workspaces
-    modelingWorkspace_ = workspaces_.itemById('FusionSolidEnvironment')
+    modelingWorkspace_ = workspaces_.itemById(workspaceToUse)
     toolbarPanels_ = modelingWorkspace_.toolbarPanels
-    toolbarPanel_ = toolbarPanels_.item(0)
+    toolbarPanel_ = toolbarPanels_.itemById(panelToUse)
     toolbarControls_ = toolbarPanel_.controls
     toolbarControl_ = toolbarControls_.itemById(id)
     return toolbarControl_
@@ -263,21 +268,10 @@ def run(context):
     try:
         commandName = 'DXFSplineToPolyline'
         commandDescription = 'A companion command of [Save As DXF] of sketch. Can convert spline to polyline'
-        commandResources = './resources'
+        commandResources = './resources/command'
 
         app = adsk.core.Application.get()
         ui = app.userInterface
-
-        class InputChangedHandler(adsk.core.InputChangedEventHandler):
-            def __init__(self):
-                super().__init__()
-            def notify(self, args):
-                try:
-                    command = args.firingEvent.sender
-                    #ui.messageBox('Input: ' + command.parentCommandDefinition.id + ' changed event triggered')
-                except:
-                    if ui:
-                        ui.messageBox('Input changed event failed:\n{}'.format(traceback.format_exc()))
 
         class CommandExecuteHandler(adsk.core.CommandEventHandler):
             def __init__(self):
@@ -308,10 +302,13 @@ def run(context):
         commandDefinitions_ = ui.commandDefinitions 
 		
         # add a command on create panel in modelling workspace
+        global workspaceToUse
+        global panelToUse
+	
         workspaces_ = ui.workspaces
-        modelingWorkspace_ = workspaces_.itemById('FusionSolidEnvironment')
+        modelingWorkspace_ = workspaces_.itemById(workspaceToUse)
         toolbarPanels_ = modelingWorkspace_.toolbarPanels
-        toolbarPanel_ = toolbarPanels_.item(0) # add the new command under the first panel
+        toolbarPanel_ = toolbarPanels_.itemById(panelToUse) # add the new command under the first panel
         toolbarControlsPanel_ = toolbarPanel_.controls
         toolbarControlPanel_ = toolbarControlsPanel_.itemById(commandIdOnPanel)
         if not toolbarControlPanel_:
