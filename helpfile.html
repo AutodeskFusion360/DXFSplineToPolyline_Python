@@ -141,8 +141,7 @@
         <div id="heading">
             <div id="plugin-icon"><img alt="DXF Spline To Polyline icon" width=64 height=64 src="resources/command/64x64.png"></div>
             <div id="plugin-name"><h1 class="separator-line">DXF Spline To Polyline</h1></div>
-            <p id="plugin-description"><strong>Fusion 360</strong> add-in that lets the user check if there are any open
-                ended curves inside the sketch currently being edited.</p>
+            <p id="plugin-description"><strong>Fusion 360</strong> add-in that lets the user export the currently active sketch to a DXF file with the splines converted to polylines in it.</p>
         </div>
 
         <div id="navigation">
@@ -162,7 +161,7 @@
                 <img width=32 height=32 src="resources/command/32x32.png"/>
             </div>
             <div class="command name">
-                Check Sketch
+                Export to DXF (Splines as Polylines)
             </div>
             <div class="command command-description">
                 Runs the command that will check the content of the sketch that is currently being edited.
@@ -174,27 +173,19 @@
         <h3>Usage</h3>
 
         <p>Once installed, the <strong>"DXF Spline To Polyline"</strong> add-in will create a new button in the menu of the
-            <strong>"Model"</strong> workspace's <strong>"Inspect"</strong> panel.<br/>
+            <strong>"Model"</strong> workspace's <strong>"Sketch"</strong> panel.<br/>
 
-            <img src="resources/readme/SketchChecker3.png" alt=""/>
+            <img src="resources/readme/DXF1.png" alt=""/>
             <br/>
-            Sometimes it can be difficult to identify at which point the sketch is not properly closed, and so cannot be
-            used as a profile for solid creation, e.g. <strong>Extrude</strong>.
-            <br />This add-in tries to help with that problem by identifying curves
-            which do not connect to other curves leaving the loop open:
+            Some laser cutters do not work with splines.
+            In order to avoid having to open the DXF in another product in order to do the conversion, this add-in does it for you.
+            <br />When you run it it will ask you for the number of sections it should divide each spline into:
             <br/>
-            <img src="resources/readme/SketchChecker1.png" alt="" />
+            <img src="resources/readme/DXF2.png" alt="" />
             <br />
-            Though unlike Inventor, Fusion does not require the sketch curves to connect to each other through a
-            sketch point in order to use the enclosed area as a profile for solid creation,
-            <br />it could be considered a good practice and can make the sketch look cleaner.
-            <br />Unfortunately, if you do not follow that, this add-in will highlight false issues as well along the real ones.
+            After that you can provide the path and filename of the DXF file that the sketch geometry will be exported to
             <br />
-            <img src="resources/readme/SketchChecker2.png" alt="" />
-            <br />However, most of the time you should still be able to visually distinguish false results from good ones,
-            since the real issues are where the curves "seem to be" connected, but they are not.
-            <br />
-            <img src="resources/readme/SketchChecker4.png" alt="" />
+            <img src="resources/readme/DXF3.png" alt="" />
 
         </p>
 
@@ -213,7 +204,7 @@
         <h2 id="AdditionalInfo" name="AdditionalInfo">Additional Information</h2>
 
         <p> The source code for this add-in written in <a href="https://www.python.org">Python</a> is available inside the add-in's folder or on <a
-                href="https://github.com/AutodeskFusion360/SketchChecker_Python">GitHub</a><br/>
+                href="https://github.com/AutodeskFusion360/DXFSplineToPolyline_Python">GitHub</a><br/>
         </p>
         <br/>
         (C) Copyright 2015 by <a href="http://www.autodesk.com">Autodesk, Inc.</a> <br/>
@@ -231,8 +222,8 @@
 
         <h2 id="Contact" name="Contact">Contact</h2>
 
-        <p>This add-in was written by <a href="http://adndevblog.typepad.com/manufacturing/adam-nagy.html">Adam Nagy</a>.<br/>
-            Adam is a Developer Advocate at Autodesk, working as part of the Autodesk Developer Network program.<br/>
+        <p>This add-in was written by <a href="http://adndevblog.typepad.com/manufacturing/xiaodong-liang.html">Xiaodong Liang</a>.<br/>
+            Xiaodong is a Developer Advocate at Autodesk, working as part of the Autodesk Developer Network program.<br/>
 
         </p>
 
