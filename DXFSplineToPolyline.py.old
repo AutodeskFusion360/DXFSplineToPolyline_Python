@@ -41,7 +41,7 @@ def ReplaceDXF(spline_polyline_map,olddxf):
             #check the first one only every time
             indexOf_Spline = matches[0]
             #replace with LWPOLYLINE\n
-            updateStr[indexOf_Spline] ='LWPOLYLINE\n'            
+            updateStr[indexOf_Spline] ='LWPOLYLINE'            
             
             #search the AcDbSpline section right after SPLINE\n
             matches = [i for i,x in enumerate(updateStr) if x == 'AcDbSpline\n']            
@@ -139,7 +139,7 @@ def BSplineToLines(oSketch,
      spline_polyline_map[nbSpline]  = polyLineDXFValues  
 
 #DXF command	 
-def DXFExportMain(precision):
+def DXFExportMain():
     ui = None
     try:   
         #get Fusion app
@@ -166,25 +166,24 @@ def DXFExportMain(precision):
         olddxfstr = dxfinput.readlines() 
      
         #ask user to input precision        
-#        inputPre = '50'
-#        (ReturnValue, objIsCancelled) = ui.inputBox(
-#            'Number of sections to split splines into',                                
-#            'Precision', 
-#            inputPre)
+        inputPre = '50'
+        (ReturnValue, objIsCancelled) = ui.inputBox(
+            'Number of sections to split splines into',                                
+            'Precision', 
+            inputPre)
             
         #Exit the program if the dialog was cancelled.
-#        if objIsCancelled:
+        if objIsCancelled:
             #use the default value
-            #precision = 50
-#            return
-#        else:
-#            precision = int(ReturnValue) 
+            precision = 50
+        else:
+            precision = int(ReturnValue) 
             
         
         #####check spline################
         unitsMgr = design.fusionUnitsManager  
         
-        spline_polyline_map = {}  
+        spline_polyline_map= {}  
         nbSpline = 0
         #check each spline             
         for eachSpline in activeObj.sketchCurves.sketchFittedSplines:
@@ -229,6 +228,7 @@ def DXFExportMain(precision):
             
 ####DXF export end
 
+
 def commandDefinitionById(id):
     app = adsk.core.Application.get()
     ui = app.userInterface
@@ -240,6 +240,8 @@ def commandDefinitionById(id):
     return commandDefinition_
 
 def commandControlByIdForPanel(id):
+    global workspaceToUse
+    global panelToUse
     app = adsk.core.Application.get()
     ui = app.userInterface
     if not id:
@@ -276,18 +278,8 @@ def run(context):
                 super().__init__()
             def notify(self, args):
                 try:
-                    #command = args.firingEvent.sender
-                    #ui.messageBox('command: ' + command.parentCommandDefinition.id + ' executed successfully')
-                    command = args.firingEvent.sender                    
-                    inputs = command.commandInputs
-                    
-                    precision = None
-                    for input in inputs:
-                        if input.id == 'numOfSections':                    
-                            precision = int(input.valueOne)
-                            
-                    #ui.messageBox('%.2f' % (precision))         
-                    DXFExportMain(precision)
+                    command = args.firingEvent.sender
+                    ui.messageBox('command: ' + command.parentCommandDefinition.id + ' executed successfully')
                 except:
                     if ui:
                         ui.messageBox('command executed failed:\n{}'.format(traceback.format_exc()))
@@ -299,16 +291,8 @@ def run(context):
                 try:
                     cmd = args.command
                     onExecute = CommandExecuteHandler()
-                    cmd.execute.add(onExecute) 
-                    # keep a reference to it 
-                    handlers.append(onExecute)
-
-                    inputs = cmd.commandInputs
-                    #initNumOfSections = adsk.core.ValueInput.createByReal(50)
-                    #inputs.addValueInput('numOfSections', 'Number of sections to split splines into', '', initNumOfSections)
-                    numOfSections = inputs.addRangeCommandFloatInput('numOfSections', 'Number of sections to split splines into', '', 10, 100, False) 
-                    numOfSections.valueOne = 50
-                    numOfSections.spinStep = 1
+                    cmd.execute.add(onExecute)                     
+                    DXFExportMain()
                     #ui.messageBox('Panel command created successfully')
                 except:
                     if ui:
@@ -316,7 +300,10 @@ def run(context):
 
         commandDefinitions_ = ui.commandDefinitions 
 		
-        # add a command on create panel in modelling workspace	
+        # add a command on create panel in modelling workspace
+        global workspaceToUse
+        global panelToUse
+	
         workspaces_ = ui.workspaces
         modelingWorkspace_ = workspaces_.itemById(workspaceToUse)
         toolbarPanels_ = modelingWorkspace_.toolbarPanels
