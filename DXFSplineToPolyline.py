@@ -41,7 +41,7 @@ def ReplaceDXF(spline_polyline_map,olddxf):
             #check the first one only every time
             indexOf_Spline = matches[0]
             #replace with LWPOLYLINE\n
-            updateStr[indexOf_Spline] ='LWPOLYLINE'            
+            updateStr[indexOf_Spline] ='LWPOLYLINE\n'            
             
             #search the AcDbSpline section right after SPLINE\n
             matches = [i for i,x in enumerate(updateStr) if x == 'AcDbSpline\n']            
