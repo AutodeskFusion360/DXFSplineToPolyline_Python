@@ -306,9 +306,9 @@ def run(context):
                     inputs = cmd.commandInputs
                     #initNumOfSections = adsk.core.ValueInput.createByReal(50)
                     #inputs.addValueInput('numOfSections', 'Number of sections to split splines into', '', initNumOfSections)
-                    numOfSections = inputs.addRangeCommandFloatInput('numOfSections', 'Number of sections to split splines into', '', 10, 100, False) 
+                    numOfSections = inputs.addRangeCommandFloatInput('numOfSections', 'Number of sections to split splines into', '', 10, 500, False) 
                     numOfSections.valueOne = 50
-                    numOfSections.spinStep = 1
+                    numOfSections.spinStep = 10
                     #ui.messageBox('Panel command created successfully')
                 except:
                     if ui:
