@@ -1,4 +1,4 @@
-# DXFSplineToPolyline_python
+# DXF Spline To Polyline (Add-In, Python)
 This add-in can export the currently active sketch geometry into DXF where splines are converted to polylines.
 The add-in's idea comes from this idea station post: [Converting splines to polylines](http://forums.autodesk.com/t5/fusion-360-ideastation-request-a/converting-splines-to-polylines/idi-p/5572393)
 
