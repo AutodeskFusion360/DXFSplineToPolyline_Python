@@ -4,6 +4,7 @@ The add-in's idea comes from this idea station post: [Converting splines to poly
 
 ## Usage:
 First see [How to install sample Add-Ins and Scripts](https://rawgit.com/AutodeskFusion360/AutodeskFusion360.github.io/master/Installation.html)
+
 Then have a look at the [help file](https://rawgit.com/AutodeskFusion360/DXFSplineToPolyline_Python/master/helpfile.html)
 
 ## License
