@@ -9,6 +9,7 @@ panelToUse = 'SketchPanel'
 
 placeHolderString = '{E91751B6-09C7-4E27-9A44-D0A77EB9EBB3}\n'
 lastUsedTolerance_cm = 0.1
+sketchObj = None
 
 # global set of event handlers to keep them referenced for the duration of the command
 handlers = []
@@ -144,28 +145,18 @@ def exportDxf(tolerance_cm):
         #get Fusion app
         app = adsk.core.Application.get()
         ui  = app.userInterface
+
+        #default dxf saving 
+        dxfFileName = os.path.join(os.path.dirname(__file__), 'fusion_temp.dxf')         
+        sketchObj.saveAsDXF(dxfFileName);        
+        dxfInput = open(dxfFileName, 'r')
+        # this returns a list with the lines of the DXF file
+        dxfContent = dxfInput.readlines() 
+            
         #get design 
         product = app.activeProduct
         design = adsk.fusion.Design.cast(product)      
- 
-        if design == None:
-            ui.messageBox('No active Fusion design', 'No Design')
-            return  
-            
-        #active sketch
-        activeObj = design.activeEditObject  
-
-        if activeObj.objectType != "adsk::fusion::Sketch":
-            ui.messageBox('Please activate a sketch before running this command!', 'No Active Sketch')
-            return        
-        
-        #default dxf saving 
-        dxfFileName = os.path.join(os.path.dirname(__file__), 'fusion_temp.dxf')         
-        activeObj.saveAsDXF(dxfFileName);        
-        dxfInput = open(dxfFileName, 'r')
-        # this returns a list with the lines of the DXF file
-        dxfContent = dxfInput.readlines()             
-        
+                    
         #####check spline################
         unitsMgr = design.fusionUnitsManager  
         
@@ -173,9 +164,9 @@ def exportDxf(tolerance_cm):
         splineCount = 0
         
         #check each spline             
-        for eachSpline in activeObj.sketchCurves.sketchFittedSplines:
+        for eachSpline in sketchObj.sketchCurves.sketchFittedSplines:
             #fitted spline
-            convertBSplineToLines(activeObj,
+            convertBSplineToLines(sketchObj,
                            unitsMgr,
                            eachSpline.geometry,
                            tolerance_cm,
@@ -183,10 +174,10 @@ def exportDxf(tolerance_cm):
                            spline_polyline_map)
             splineCount += 1
        
-        for eachSpline in activeObj.sketchCurves.sketchFixedSplines:
+        for eachSpline in sketchObj.sketchCurves.sketchFixedSplines:
             #fixed spline
             #print("fixed spline")  
-            convertBSplineToLines(activeObj,
+            convertBSplineToLines(sketchObj,
                            unitsMgr,
                            eachSpline.geometry,
                            tolerance_cm,
@@ -261,7 +252,7 @@ def run(context):
     ui = None
     try:
         commandName = 'Export to DXF (Splines as Polylines)'
-        commandDescription = 'Exports the active sketch to DXF and converts the ' \
+        commandDescription = 'Exports selected sketch to DXF and converts the ' \
         'splines in the created file to polylines\n'
         commandResources = './resources/command'
 
@@ -303,17 +294,26 @@ def run(context):
                     
                     #get design 
                     product = app.activeProduct
-                    design = adsk.fusion.Design.cast(product)   
-                    
-                    #active sketch
-                    activeObj = design.activeEditObject  
+                    design = adsk.fusion.Design.cast(product)      
+             
+                    if design == None:
+                        ui.messageBox('No active Fusion design', 'No Design')
+                        return  
+                        
+                    #selected sketch
+                    global sketchObj
+                    sketchObj = None
+                    if ui.activeSelections.count == 1:
+                        sketchObj = ui.activeSelections.item(0).entity
+                        if sketchObj.objectType != "adsk::fusion::Sketch":
+                            sketchObj = None
             
-                    if activeObj.objectType != "adsk::fusion::Sketch":
-                        ui.messageBox('Please activate a sketch before running this command!', 'No Active Sketch')
+                    if not sketchObj:
+                        ui.messageBox('Please select a sketch before running this command!', 'No Sketch Selected')
                         return   
                         
                     cmd = args.command
-                    cmd.setDialogInitialSize(300, 150)
+                    #cmd.setDialogInitialSize(300, 150)
                     onExecute = CommandExecuteHandler()
                     cmd.execute.add(onExecute) 
                     # keep a reference to it 
