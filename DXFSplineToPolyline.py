@@ -1,7 +1,7 @@
 #Author-Xiaodong Liang, Autodesk
 #A companion command of [Save As DXF] of sketch. Can convert spline to polyline
 
-import adsk.core, adsk.fusion, traceback, os #, re, math, string   
+import adsk.core, adsk.fusion, traceback, os, time #, re, math, string   
 
 commandIdOnPanel = 'id_DXFSplineToPolyline'
 workspaceToUse = 'FusionSolidEnvironment'
@@ -74,7 +74,7 @@ def replaceDxf(spline_polyline_map, oldDxfContent):
         #mark the rows of spline values until the next entity
         for k  in range(indexOfAcDbSpline + 1, len(newDxfContent)-1):                                
             if isNumber(newDxfContent[k+1].rstrip()) == False:
-                break;
+                break
             if isNumber(newDxfContent[k].rstrip()) and \
                 isNumber(newDxfContent[k+1].rstrip()) : 				    
                 #set this row with the guid. which means this row will be deleted later 
@@ -146,6 +146,18 @@ def exportDxf(tolerance_cm):
         app = adsk.core.Application.get()
         ui  = app.userInterface
 
+        #pop out file dialog to save the DXF  
+        fileDialog = ui.createFileDialog()
+        fileDialog.isMultiSelectEnabled = False
+        fileDialog.title = "Export to DXF"
+        fileDialog.filter = 'DXF files (*.dxf)'
+        fileDialog.filterIndex = 0    
+        dialogResult = fileDialog.showSave()
+        if dialogResult == adsk.core.DialogResults.DialogOK:
+            filename = fileDialog.filename
+        else:
+            return   
+
         #default dxf saving 
         dxfFileName = os.path.join(os.path.dirname(__file__), 'fusion_temp.dxf')         
         sketchObj.saveAsDXF(dxfFileName);        
@@ -184,6 +196,16 @@ def exportDxf(tolerance_cm):
                            splineCount,
                            spline_polyline_map)
             splineCount += 1
+
+        for eachSpline in sketchObj.sketchCurves.sketchControlPointSplines:
+            #control point spline
+            convertBSplineToLines(sketchObj,
+                           unitsMgr,
+                           eachSpline.geometry,
+                           tolerance_cm,
+                           splineCount,
+                           spline_polyline_map)
+            splineCount += 1
         #####end of checking spline######
             
         #replace DXF 
@@ -192,18 +214,6 @@ def exportDxf(tolerance_cm):
             newDxfContent = dxfContent
         else:
             newDxfContent = replaceDxf(spline_polyline_map, dxfContent)
-    
-        #pop out file dialog to save the DXF    
-        fileDialog = ui.createFileDialog()
-        fileDialog.isMultiSelectEnabled = False
-        fileDialog.title = "Export to DXF"
-        fileDialog.filter = 'DXF files (*.dxf)'
-        fileDialog.filterIndex = 0    
-        dialogResult = fileDialog.showSave()
-        if dialogResult == adsk.core.DialogResults.DialogOK:
-            filename = fileDialog.filename
-        else:
-            return   
             
         #write the content to the new DXF
         output = open(filename, 'w')
@@ -303,14 +313,21 @@ def run(context):
                     #selected sketch
                     global sketchObj
                     sketchObj = None
-                    if ui.activeSelections.count == 1:
-                        sketchObj = ui.activeSelections.item(0).entity
-                        if sketchObj.objectType != "adsk::fusion::Sketch":
-                            sketchObj = None
+
+                    sketchObj = adsk.fusion.Sketch.cast(product.activeEditObject)
             
                     if not sketchObj:
-                        ui.messageBox('Please select a sketch before running this command!', 'No Sketch Selected')
+                        ui.messageBox('Please activate a sketch before running this command!', 'No Sketch Selected')
                         return   
+
+                    # if ui.activeSelections.count == 1:
+                    #     sketchObj = ui.activeSelections.item(0).entity
+                    #     if sketchObj.objectType != "adsk::fusion::Sketch":
+                    #         sketchObj = None
+            
+                    # if not sketchObj:
+                    #     ui.messageBox('Please select a sketch before running this command!', 'No Sketch Selected')
+                    #     return   
                         
                     cmd = args.command
                     #cmd.setDialogInitialSize(300, 150)
